@@ -1,0 +1,3 @@
+---
+- couchdb_docker_dir: counchdb_docker
+- couchdb_data_dir: /data

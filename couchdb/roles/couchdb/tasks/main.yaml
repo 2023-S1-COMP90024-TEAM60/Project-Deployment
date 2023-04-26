@@ -1,0 +1,103 @@
+---
+- name: Create CouchDB directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ couchdb_docker_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+
+# - name: Copy docker-compose file with owner and permissions
+#   ansible.builtin.copy:
+#     src: ./templates/docker-compose.yaml
+#     dest: "{{ couchdb_docker_dir }}/docker-compose.yaml"
+#     owner: "{{ ansible_user }}"
+#     group: "{{ ansible_user }}"
+#     mode: '0644'
+#   when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Copy docker-compose file with owner and permissions
+  become: yes
+  ansible.builtin.template:
+    src: docker-compose.yaml.j2
+    dest: "{{ couchdb_docker_dir }}/docker-compose.yaml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Copy vm.args file with owner and permissions
+  become: yes
+  ansible.builtin.template:
+    src: vm.args.j2
+    dest: "{{ couchdb_docker_dir }}/vm.args"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+
+- name: Install pip library
+  become: yes
+  ansible.builtin.pip:
+    name: ["jsondiff"]
+    state: latest
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Remove couchdb stack if exists
+  become: yes
+  community.docker.docker_stack:
+    name: couchdb
+    state: absent
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Pause for 10 seconds to remove couchdb stack
+  ansible.builtin.pause:
+    seconds: 10
+
+- name: Run docker compose
+  become: yes
+  community.docker.docker_stack:
+    compose: "{{ couchdb_docker_dir }}/docker-compose.yaml"
+    name: couchdb
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Wait for all containers to be ready
+  wait_for:
+    host: "{{ inventory_hostname }}"
+    port: 5984
+    timeout: 60
+    delay: 5
+    state: started
+  loop: "{{ groups['AllInstances'] }}"
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Add cluster node
+  ansible.builtin.uri:
+    url: http://{{ groups['DockerSwarmManager'][0] }}:5984/_cluster_setup
+    status_code: [201, 409]
+    method: POST
+    user: "{{ couchdb_user }}"
+    password: "{{ couchdb_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body: "{\"action\": \"add_node\", \"host\":\"{{ inventory_hostname }}\",\
+             \"port\": \"5984\", \"username\": \"{{ couchdb_user }}\", \"password\":\"{{ couchdb_password }}\"}"
+  when:
+    - inventory_hostname != groups['DockerSwarmManager'][0]
+
+- name: Finish
+  ignore_errors: true
+  ansible.builtin.uri:
+    url: http://{{ groups['DockerSwarmManager'][0] }}:5984/_cluster_setup
+    status_code: [201]
+    method: POST
+    user: "{{ couchdb_user }}"
+    password:  "{{ couchdb_password }}"
+    force_basic_auth: yes
+    headers:
+      Content-Type: "application/json"
+    body_format: json
+    body: "{\"action\": \"finish_cluster\"}"
+    return_content: yes
+  when: inventory_hostname == groups['DockerSwarmManager'][0]

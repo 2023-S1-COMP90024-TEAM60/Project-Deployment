@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  couchdb:
+    environment:
+      COUCHDB_USER: {{ couchdb_user }}
+      COUCHDB_PASSWORD: {{ couchdb_hashed_password }}
+      COUCHDB_SECRET: {{ couchdb_secret }}
+      ERL_FLAGS: "-setcookie a20b37d83ef18efce400b3ace400036e"
+    image: couchdb:3.3
+    deploy:
+      mode: global
+    networks:
+      - couchdb-net
+    ports:
+      - target: 5984
+        published: 5984
+        mode: "host"
+      - target: 9100
+        published: 9100
+        mode: "host"
+      - target: 4369
+        published: 4369
+        mode: "host"
+    volumes:
+      - type: bind
+        source: /home/ubuntu/counchdb_docker/vm.args
+        target: /opt/couchdb/etc/vm.args
+      - type: bind
+        source: {{ couchdb_data_dir }}
+        target: /opt/couchdb/data
+
+networks:
+  couchdb-net:
+    driver: overlay
+
+# configs:
+#   couchdb_conf:
+#     file: ./config.ini
