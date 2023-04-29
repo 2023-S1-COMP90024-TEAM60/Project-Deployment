@@ -7,6 +7,7 @@
     group: "{{ ansible_user }}"
     recurse: yes
     state: directory
+  when: inventory_hostname in groups['Couchdb'] or inventory_hostname == groups['DockerSwarmManager'][0]
 
 # - name: Copy docker-compose file with owner and permissions
 #   ansible.builtin.copy:
@@ -25,6 +26,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: '0644'
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
 
 - name: Copy vm.args file with owner and permissions
   become: yes
@@ -34,6 +36,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: '0644'
+  when: inventory_hostname in groups['Couchdb'] or inventory_hostname == groups['DockerSwarmManager'][0]
 
 - name: Install pip library
   become: yes
@@ -62,17 +65,17 @@
 
 - name: Wait for all containers to be ready
   wait_for:
-    host: "{{ inventory_hostname }}"
+    host: "{{ item }}"
     port: 5984
     timeout: 60
     delay: 5
     state: started
-  loop: "{{ groups['AllInstances'] }}"
+  loop: "{{ groups['Couchdb'] }}"
   when: inventory_hostname == groups['DockerSwarmManager'][0]
 
 - name: Add cluster node
   ansible.builtin.uri:
-    url: http://{{ groups['DockerSwarmManager'][0] }}:5984/_cluster_setup
+    url: http://{{ groups['Couchdb'][0] }}:5984/_cluster_setup
     status_code: [201, 409]
     method: POST
     user: "{{ couchdb_user }}"
@@ -83,13 +86,12 @@
     body_format: json
     body: "{\"action\": \"add_node\", \"host\":\"{{ inventory_hostname }}\",\
              \"port\": \"5984\", \"username\": \"{{ couchdb_user }}\", \"password\":\"{{ couchdb_password }}\"}"
-  when:
-    - inventory_hostname != groups['DockerSwarmManager'][0]
+  when: inventory_hostname in groups['Couchdb']
 
 - name: Finish
   ignore_errors: true
   ansible.builtin.uri:
-    url: http://{{ groups['DockerSwarmManager'][0] }}:5984/_cluster_setup
+    url: http://{{ groups['Couchdb'][0] }}:5984/_cluster_setup
     status_code: [201]
     method: POST
     user: "{{ couchdb_user }}"
@@ -100,4 +102,4 @@
     body_format: json
     body: "{\"action\": \"finish_cluster\"}"
     return_content: yes
-  when: inventory_hostname == groups['DockerSwarmManager'][0]
+  when: inventory_hostname == groups['Couchdb'][0]

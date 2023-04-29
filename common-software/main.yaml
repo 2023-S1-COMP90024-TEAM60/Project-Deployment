@@ -1,5 +1,5 @@
 - hosts: AllInstances
-  gather_facts: false
+  gather_facts: true
 
   vars_files:
     - host_vars/volumes.yaml
@@ -10,7 +10,7 @@
     - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 
   roles:
+    - role: volumes
     - role: common
     - role: docker
     - role: docker-swarm
-    - role: volumes

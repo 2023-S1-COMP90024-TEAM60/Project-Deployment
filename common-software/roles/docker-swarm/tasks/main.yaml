@@ -35,3 +35,25 @@
     remote_addrs: "{{ hostvars[groups['DockerSwarmManager'][0]].inventory_hostname }}"
   when:
     - inventory_hostname not in groups['DockerSwarmManager']
+
+- name: Add database label to database node
+  become: yes
+  community.docker.docker_node:
+    hostname: "{{ hostvars[item]['ansible_hostname'] }}"
+    labels:
+      type: db
+    labels_state: replace
+  loop: "{{ groups['Couchdb'] }}"
+  when:
+    - inventory_hostname == groups['App'][0]
+
+- name: Add app label to appplication node
+  become: yes
+  community.docker.docker_node:
+    hostname: "{{ hostvars[item]['ansible_hostname'] }}"
+    labels:
+      type: app
+    labels_state: replace
+  loop: "{{ groups['App'] }}"
+  when:
+    - inventory_hostname == groups['App'][0]

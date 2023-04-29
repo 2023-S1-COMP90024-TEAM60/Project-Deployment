@@ -10,6 +10,9 @@ services:
     image: couchdb:3.3
     deploy:
       mode: global
+      placement:
+        constraints:
+          - node.labels.type == db
     networks:
       - couchdb-net
     ports:
