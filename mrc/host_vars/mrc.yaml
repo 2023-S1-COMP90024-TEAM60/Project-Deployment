@@ -1,0 +1,170 @@
+# Common vars
+availability_zone: melbourne-qh2-uom
+instance_image: bbaf16f8-2484-48d7-b455-42209cc4b8d2
+instance_key_name: ssh-key
+instance_flavor: uom.mse.1c4g
+instance_network: qh2-uom-internal
+server_group: server-group-01
+
+server_groups:
+  - name: server-group-01
+    policy: affinity
+
+# Volume
+volumes:
+  - vol_name: LMELPA2DB01-data-01
+    vol_size: 60
+  - vol_name: LMELPA2DB02-data-01
+    vol_size: 60
+  - vol_name: LMELPA2DB03-data-01
+    vol_size: 60
+  - vol_name: LMELPA2APP01-data-01
+    vol_size: 30
+  - vol_name: LMELPA2APP02-data-01
+    vol_size: 30
+  - vol_name: LMELPA2DB01-docker-01
+    vol_size: 15
+  - vol_name: LMELPA2DB02-docker-01
+    vol_size: 15
+  - vol_name: LMELPA2DB03-docker-01
+    vol_size: 15
+  - vol_name: LMELPA2APP01-docker-01
+    vol_size: 15
+  - vol_name: LMELPA2APP02-docker-01
+    vol_size: 15
+
+security_groups:
+  - name: sg-couchdb-01
+    description: "Security group for Couchdb"
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+  - name: sg-ssh-01
+    description: "Security group for SSH login"
+
+# Security group
+security_groups_rules:
+  - name: sg-couchdb-01
+    ether_type: IPv4
+    protocol: any
+    direction: egress
+    port_range_min: 1
+    port_range_max: 65535
+    remote_ip_prefix: 0.0.0.0/0
+  - name: sg-couchdb-01
+    description: "Security group for Couchdb"
+    protocol: tcp
+    port_range_min: 4369
+    port_range_max: 4369
+    remote_ip_prefix:	172.26.36.0/22
+  - name: sg-couchdb-01
+    description: "Security group for Couchdb"
+    protocol: tcp
+    port_range_min: 4369
+    port_range_max: 4369
+    remote_ip_prefix: 	172.26.128.0/20
+  - name: sg-couchdb-01
+    description: "Security group for Couchdb"
+    protocol: tcp
+    port_range_min: 5984
+    port_range_max: 5984
+    remote_ip_prefix: 0.0.0.0/0
+  - name: sg-couchdb-01
+    description: "Security group for Couchdb"
+    protocol: tcp
+    port_range_min: 9100
+    port_range_max: 9200
+    remote_ip_prefix: 172.26.128.0/20
+  - name: sg-couchdb-01
+    description: "Security group for Couchdb"
+    protocol: tcp
+    port_range_min: 9100
+    port_range_max: 9200
+    remote_ip_prefix: 172.26.36.0/22
+
+  - name: sg-docker-swarm-01
+    ether_type: IPv4
+    protocol: any
+    direction: egress
+    port_range_min: 1
+    port_range_max: 65535
+    remote_ip_prefix: 0.0.0.0/0
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+    protocol: tcp
+    port_range_min: 2377
+    port_range_max: 2377
+    remote_ip_prefix: 172.26.128.0/20
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+    protocol: tcp
+    port_range_min: 2377
+    port_range_max: 2377
+    remote_ip_prefix: 172.26.36.0/22
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+    protocol: tcp
+    port_range_min: 7946
+    port_range_max: 7946
+    remote_ip_prefix: 172.26.128.0/20	
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+    protocol: tcp
+    port_range_min: 7946
+    port_range_max: 7946
+    remote_ip_prefix: 172.26.36.0/22
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+    protocol: tcp
+    port_range_min: 4789
+    port_range_max: 4789
+    remote_ip_prefix: 172.26.128.0/20	
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+    protocol: tcp
+    port_range_min: 4789
+    port_range_max: 4789
+    remote_ip_prefix: 172.26.36.0/22
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+    protocol: tcp
+    port_range_min: 7946
+    port_range_max: 7946
+    remote_ip_prefix: 172.26.128.0/20	
+  - name: sg-docker-swarm-01
+    description: "Security group for Docker Swarm"
+    protocol: tcp
+    port_range_min: 7946
+    port_range_max: 7946
+    remote_ip_prefix: 172.26.36.0/22
+
+  - name: sg-ssh-01
+    ether_type: IPv4
+    protocol: any
+    direction: egress
+    port_range_min: 1
+    port_range_max: 65535
+    remote_ip_prefix: 0.0.0.0/0
+  - name: sg-ssh-01
+    description: "Security group for SSH login"
+    protocol: tcp
+    port_range_min: 22
+    port_range_max: 22
+    remote_ip_prefix: 0.0.0.0/0
+
+# Instance
+instances:
+  - name: LMELPA2DB01
+    instance_flavor: uom.mse.1c4g
+    volumes: ["LMELPA2DB01-data-01", "LMELPA2DB01-docker-01"]
+  - name: LMELPA2DB02
+    instance_flavor: uom.mse.1c4g
+    volumes: ["LMELPA2DB02-data-01", "LMELPA2DB02-docker-01"]
+  - name: LMELPA2DB03
+    instance_flavor: uom.mse.1c4g
+    volumes: ["LMELPA2DB03-data-01", "LMELPA2DB03-docker-01"]
+  - name: LMELPA2APP01
+    instance_flavor: uom.mse.2c9g
+    volumes: ["LMELPA2APP01-data-01", "LMELPA2APP01-docker-01"]
+  - name: LMELPA2APP02
+    instance_flavor: uom.mse.2c9g
+    volumes: ["LMELPA2APP02-data-01", "LMELPA2APP02-docker-01"]
