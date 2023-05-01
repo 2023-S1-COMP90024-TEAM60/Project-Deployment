@@ -5,7 +5,7 @@
     name: "{{ item.name }}"
     auto_floating_ip: false
     availability_zone: "{{ availability_zone }}"
-    flavor: "{{ instance_flavor }}"
+    flavor: "{{ item.instance_flavor }}"
     image: "{{ instance_image }}"
     key_name: "{{ instance_key_name }}"
     network: "{{ instance_network }}"
@@ -14,6 +14,8 @@
     volumes: "{{ item.volumes }}"
     state: present
     wait: true
+    scheduler_hints:
+      group: "{{ server_groups.results[0].server_group.id }}"
   loop: "{{ instances }}"
   register: os_instance
 
@@ -21,14 +23,6 @@
     msg: "Instance {{ item.server.name }} has been created. IP address is {{ item.server.addresses['qh2-uom-internal'][0].addr }}"
   loop: "{{ os_instance.results }}"
   when: item.server is defined
-
-# - name: Print content of ssh private key
-#   ansible.builtin.shell: cat {{ ansible_ssh_private_key_file }}
-#   register: private_key_content
-
-# - name: Debug private key content
-#   ansible.builtin.debug:
-#     var: private_key_content.stdout
     
 - name: Wait for connection
   ansible.builtin.wait_for:

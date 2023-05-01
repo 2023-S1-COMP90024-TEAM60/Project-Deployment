@@ -1,0 +1,7 @@
+---
+- openstack.cloud.server_group:
+    state: present
+    name: "{{ item.name }}"
+    policy: "{{ item.policy }}"
+  loop: "{{ server_groups }}"
+  register: server_groups
