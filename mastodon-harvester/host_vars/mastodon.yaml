@@ -1,0 +1,6 @@
+---
+mastodon_docker_dir: mastodon_docker
+mastodon_servers:
+  - server_name: social_maston
+    server_url: https://mastodon.social
+    access_token: Avy5Af-yjYcuKvTlPNEmTPp_M9Eq_tAEeCse5P8hq4w
