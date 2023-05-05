@@ -1,0 +1,62 @@
+---
+- name: Recursively remove directory if it exists
+  ansible.builtin.file:
+    path: "{{ backend_docker_dir }}"
+    state: absent
+  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
+
+- name: Create frontend directory
+  become: yes
+  ansible.builtin.file:
+    path: "{{ backend_docker_dir }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    recurse: yes
+    state: directory
+  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
+
+- name: Copy backend source folder with owner and permissions
+  become: yes
+  synchronize:
+    src: ../../Project-backend/
+    dest: "{{ backend_docker_dir }}/"
+    mode: push
+    delete: true
+  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
+
+
+- name: Copy docker-compose file with owner and permissions
+  become: yes
+  ansible.builtin.template:
+    src: docker-compose.yaml.j2
+    dest: "{{ backend_docker_dir }}/docker-compose.yaml"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: '0644'
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+
+- name: Install pip library
+  become: yes
+  ansible.builtin.pip:
+    name: ["jsondiff"]
+    state: latest
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Build an image
+  become: yes
+  community.docker.docker_image:
+    build:
+      path: "{{ backend_docker_dir }}"
+      nocache: true
+    name: backend
+    source: build
+    force_source: true
+  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
+
+- name: Run docker stack to deploy backend
+  become: yes
+  community.docker.docker_stack:
+    compose: "{{ backend_docker_dir }}/docker-compose.yaml"
+    name: "backend"
+  when: inventory_hostname == groups['DockerSwarmManager'][0]

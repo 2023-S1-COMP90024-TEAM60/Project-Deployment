@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  
+  backend:
+    image: backend
+    deploy:
+      mode: replicated
+      replicas: 2
+      placement:
+        constraints:
+          - node.labels.type == app
+        preferences:
+          - spread: node.labels.app
+    command: gunicorn --bind 0.0.0.0:8000 app:app
+    ports:
+      - 8000:8000
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: overlay

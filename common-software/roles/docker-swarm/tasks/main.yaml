@@ -7,53 +7,58 @@
   register: result
   when: inventory_hostname == groups['DockerSwarmManager'][0]
 
-- name: Get join-token for manager nodes
-  set_fact:
-    join_token_manager: "{{ hostvars[groups['DockerSwarmManager'][0]].result.swarm_facts.JoinTokens.Manager }}"
+# - name: Get join-token for manager nodes
+#   set_fact:
+#     join_token_manager: "{{ hostvars[groups['DockerSwarmManager'][0]].result.swarm_facts.JoinTokens.Manager }}"
 
-- name: Get join-token for worker nodes
-  set_fact:
-    join_token_worker: "{{ hostvars[groups['DockerSwarmManager'][0]].result.swarm_facts.JoinTokens.Worker }}"
+# - name: Get join-token for worker nodes
+#   set_fact:
+#     join_token_worker: "{{ hostvars[groups['DockerSwarmManager'][0]].result.swarm_facts.JoinTokens.Worker }}"
 
-- name: Join other managers
-  become: yes
-  community.general.docker_swarm:
-    state: join
-    join_token: "{{ join_token_manager }}"
-    advertise_addr: "{{ inventory_hostname }}"
-    remote_addrs: "{{ hostvars[groups['DockerSwarmManager'][0]].inventory_hostname }}"
-  when:
-    - inventory_hostname in groups['DockerSwarmManager']
-    - inventory_hostname != groups['DockerSwarmManager'][0]
 
-- name: Join workers
-  become: yes
-  community.general.docker_swarm:
-    state: join
-    join_token: "{{ join_token_worker }}"
-    advertise_addr: "{{ inventory_hostname }}"
-    remote_addrs: "{{ hostvars[groups['DockerSwarmManager'][0]].inventory_hostname }}"
-  when:
-    - inventory_hostname not in groups['DockerSwarmManager']
+# - name: Show images
+#   ansible.builtin.debug:
+#     msg: "token {{join_token_manager}}"
 
-- name: Add database label to database node
-  become: yes
-  community.docker.docker_node:
-    hostname: "{{ hostvars[item]['ansible_hostname'] }}"
-    labels:
-      type: db
-    labels_state: replace
-  loop: "{{ groups['Couchdb'] }}"
-  when:
-    - inventory_hostname == groups['App'][0]
+# - name: Join other managers
+#   become: yes
+#   community.docker.docker_swarm:
+#     state: join
+#     join_token: "{{ join_token_manager }}"
+#     # advertise_addr: "{{ inventory_hostname }}"
+#     remote_addrs: ["{{ hostvars[groups['DockerSwarmManager'][0]].inventory_hostname }}:2377"]
+#   when:
+#     - inventory_hostname in groups['DockerSwarmManager']
+#     - inventory_hostname != groups['DockerSwarmManager'][0]
 
-- name: Add app label to appplication node
-  become: yes
-  community.docker.docker_node:
-    hostname: "{{ hostvars[item]['ansible_hostname'] }}"
-    labels:
-      type: app
-    labels_state: replace
-  loop: "{{ groups['App'] }}"
-  when:
-    - inventory_hostname == groups['App'][0]
+# - name: Join workers
+#   become: yes
+#   community.docker.docker_swarm:
+#     state: join
+#     join_token: "{{ join_token_worker }}"
+#     advertise_addr: "{{ inventory_hostname }}"
+#     remote_addrs: "{{ hostvars[groups['DockerSwarmManager'][0]].inventory_hostname }}"
+#   when:
+#     - inventory_hostname not in groups['DockerSwarmManager']
+
+# # - name: Add database label to database node
+# #   become: yes
+# #   community.docker.docker_node:
+# #     hostname: "{{ hostvars[item]['ansible_hostname'] }}"
+# #     labels:
+# #       type: db
+# #     labels_state: replace
+# #   loop: "{{ groups['Couchdb'] }}"
+# #   when:
+# #     - inventory_hostname == groups['App'][0]
+
+# - name: Add app label to appplication node
+#   become: yes
+#   community.docker.docker_node:
+#     hostname: "{{ hostvars[item]['ansible_hostname'] }}"
+#     labels:
+#       type: app
+#     labels_state: replace
+#   loop: "{{ groups['App'] }}"
+#   when:
+#     - inventory_hostname == groups['App'][0]
