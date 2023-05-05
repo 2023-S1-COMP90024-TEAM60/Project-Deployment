@@ -1,5 +1,6 @@
 ---
 - name: Recursively remove directory if it exists
+  become: yes
   ansible.builtin.file:
     path: "{{ frontend_docker_dir }}"
     state: absent
@@ -16,12 +17,6 @@
   when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
 
 - name: Copy frontend source folder with owner and permissions
-  # ansible.builtin.copy:
-  #   src: ../../Project-frontend/
-  #   dest: "{{ frontend_docker_dir }}/"
-  #   owner: "{{ ansible_user }}"
-  #   group: "{{ ansible_user }}"
-  #   mode: '0644'
   synchronize:
     src: ../../Project-frontend/
     dest: "{{ frontend_docker_dir }}/"
@@ -43,21 +38,15 @@
     mode: '0644'
   when: inventory_hostname == groups['DockerSwarmManager'][0]
 
-
-- name: Install pip library
-  become: yes
-  ansible.builtin.pip:
-    name: ["jsondiff"]
-    state: latest
-  when: inventory_hostname == groups['DockerSwarmManager'][0]
-
 - name: Build an image
   become: yes
   community.docker.docker_image:
     build:
       path: "{{ frontend_docker_dir }}"
+      nocache: true
     name: frontend
     source: build
+    force_source: true
   when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
 
 - name: Run docker stack to deploy frontend

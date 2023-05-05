@@ -1,4 +1,11 @@
 ---
+- name: Recursively remove directory if it exists
+  become: yes
+  ansible.builtin.file:
+    path: "{{ couchdb_docker_dir }}"
+    state: absent
+  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
+
 - name: Create CouchDB directory
   become: yes
   ansible.builtin.file:
@@ -8,15 +15,6 @@
     recurse: yes
     state: directory
   when: inventory_hostname in groups['Couchdb'] or inventory_hostname == groups['DockerSwarmManager'][0]
-
-# - name: Copy docker-compose file with owner and permissions
-#   ansible.builtin.copy:
-#     src: ./templates/docker-compose.yaml
-#     dest: "{{ couchdb_docker_dir }}/docker-compose.yaml"
-#     owner: "{{ ansible_user }}"
-#     group: "{{ ansible_user }}"
-#     mode: '0644'
-#   when: inventory_hostname == groups['DockerSwarmManager'][0]
 
 - name: Copy docker-compose file with owner and permissions
   become: yes
@@ -37,24 +35,6 @@
     group: "{{ ansible_user }}"
     mode: '0644'
   when: inventory_hostname in groups['Couchdb'] or inventory_hostname == groups['DockerSwarmManager'][0]
-
-- name: Install pip library
-  become: yes
-  ansible.builtin.pip:
-    name: ["jsondiff"]
-    state: latest
-  when: inventory_hostname == groups['DockerSwarmManager'][0]
-
-- name: Remove couchdb stack if exists
-  become: yes
-  community.docker.docker_stack:
-    name: couchdb
-    state: absent
-  when: inventory_hostname == groups['DockerSwarmManager'][0]
-
-- name: Pause for 10 seconds to remove couchdb stack
-  ansible.builtin.pause:
-    seconds: 10
 
 - name: Run docker compose
   become: yes
