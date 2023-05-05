@@ -9,7 +9,7 @@ services:
       placement:
         constraints:
           - node.labels.type == app
-    command: ["python", "matdn.py", "--mastodon_server_url", "{{ item.server_url }}", "--mastodon_access_token", "{{ item.access_token }}", "--couchdb_endpoint", "{{ couchdb_endpoint }}", "--couchdb_database", "{{ couchdb_database }}"]
+    command: ["python", "matdn.py", "--mastodon_server_url", "{{ item.server_url }}", "--mastodon_access_token", "{{ item.access_token }}", "--couchdb_endpoint", "{{ couchdb_endpoint }}", "--couchdb_database", "{{ couchdb_database }}", "--mastodon_server_tag", "{{ item.server_name }}"]
     networks:
       - mastodon-harvester
 {% endfor %}

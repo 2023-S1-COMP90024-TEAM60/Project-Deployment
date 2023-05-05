@@ -1,6 +1,12 @@
 ---
 mastodon_docker_dir: mastodon_docker
 mastodon_servers:
-  - server_name: social_maston
+  - server_name: social
     server_url: https://mastodon.social
-    access_token: Avy5Af-yjYcuKvTlPNEmTPp_M9Eq_tAEeCse5P8hq4w
+    access_token: n8FBg0C8kB3BpZIEc8trUy3FvQaF0xfujJvir-Lungo
+  - server_name: aus_social
+    server_url: https://aus.social
+    access_token: 3B1DDxH16m0xToXpX0RX0e6wBwIpGzyoQrNBOjEgGkA
+  - server_name: technology
+    server_url: https://fosstodon.org
+    access_token: mksdEDsjhK_k4UeADLI6pKZ628i8ei2br8uYGL75GNY

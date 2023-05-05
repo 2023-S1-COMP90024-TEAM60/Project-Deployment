@@ -1,5 +1,6 @@
 ---
 - name: Recursively remove directory if it exists
+  become: yes
   ansible.builtin.file:
     path: "{{ mastodon_docker_dir }}"
     state: absent
@@ -16,12 +17,15 @@
   when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
 
 - name: Copy mastodon source folder with owner and permissions
-  ansible.builtin.copy:
+  become: yes
+  synchronize:
     src: ../../mastodon/
     dest: "{{ mastodon_docker_dir }}/"
-    owner: "{{ ansible_user }}"
-    group: "{{ ansible_user }}"
-    mode: '0644'
+    mode: push
+    delete: true
+    rsync_opts:
+      - "--exclude=mastodon/"
+      - "--exclude=Mastodon.py-1.8.1.dist-info/"
   when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
 
 - name: Copy docker-compose file with owner and permissions
@@ -47,36 +51,15 @@
   community.docker.docker_image:
     build:
       path: "{{ mastodon_docker_dir }}"
+      nocache: true
     name: mastodon_harvester
     source: build
+    force_source: true
   when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
 
 - name: Run docker stack to deploy mastodon harvester
   become: yes
   community.docker.docker_stack:
     compose: "{{ mastodon_docker_dir }}/docker-compose.yaml"
-    name: "mastodon-harvestor"
+    name: "mastodon-harvester"
   when: inventory_hostname == groups['DockerSwarmManager'][0]
-
-# - name: Run `docker-compose up`
-#   become: yes
-#   community.docker.docker_compose:
-#     project_src: "{{ mastodon_docker_dir }}"
-#     build: false
-#     files:
-#       - "docker-compose-{{ item.server_name }}.yaml"
-#   loop: "{{ mastodon_servers }}"
-#   when: inventory_hostname == groups['DockerSwarmManager'][0]
-
-
-
-# - name: Pause for 10 seconds to remove couchdb stack
-#   ansible.builtin.pause:
-#     seconds: 10
-
-# - name: Run docker compose
-#   become: yes
-#   community.docker.docker_stack:
-#     compose: "{{ couchdb_docker_dir }}/docker-compose.yaml"
-#     name: couchdb
-#   when: inventory_hostname == groups['DockerSwarmManager'][0]
