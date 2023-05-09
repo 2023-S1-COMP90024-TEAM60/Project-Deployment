@@ -10,3 +10,6 @@ mastodon_servers:
   - server_name: technology
     server_url: https://fosstodon.org
     access_token: mksdEDsjhK_k4UeADLI6pKZ628i8ei2br8uYGL75GNY
+  - server_name: esports
+    server_url: https://mstdn.games
+    access_token: _bDlKzNrFnYzCLzUV1T2G1r2WvO_aNx_YXkykHQ4wyc
