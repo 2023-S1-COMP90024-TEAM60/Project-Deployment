@@ -53,10 +53,21 @@
   loop: "{{ groups['Couchdb'] }}"
   when: inventory_hostname == groups['DockerSwarmManager'][0]
 
+- name: Check node status
+  ansible.builtin.uri:
+    url: http://{{ inventory_hostname }}:5984/_cluster_setup
+    status_code: [200]
+    method: GET
+    user: "{{ couchdb_user }}"
+    password: "{{ couchdb_password }}"
+    force_basic_auth: yes
+  register: node_status
+  when: inventory_hostname in groups['Couchdb']
+
 - name: Add cluster node
   ansible.builtin.uri:
     url: http://{{ groups['Couchdb'][0] }}:5984/_cluster_setup
-    status_code: [201, 409]
+    status_code: [201]
     method: POST
     user: "{{ couchdb_user }}"
     password: "{{ couchdb_password }}"
@@ -66,7 +77,18 @@
     body_format: json
     body: "{\"action\": \"add_node\", \"host\":\"{{ inventory_hostname }}\",\
              \"port\": \"5984\", \"username\": \"{{ couchdb_user }}\", \"password\":\"{{ couchdb_password }}\"}"
-  when: inventory_hostname in groups['Couchdb']
+  when: inventory_hostname in groups['Couchdb'] and node_status.json.state != "cluster_finished"
+
+- name: Check cluster status
+  ansible.builtin.uri:
+    url: http://{{ inventory_hostname }}:5984/_cluster_setup
+    status_code: [200]
+    method: GET
+    user: "{{ couchdb_user }}"
+    password: "{{ couchdb_password }}"
+    force_basic_auth: yes
+  register: cluster_status
+  when: inventory_hostname == groups['Couchdb'][0]
 
 - name: Finish
   ignore_errors: true
@@ -82,4 +104,4 @@
     body_format: json
     body: "{\"action\": \"finish_cluster\"}"
     return_content: yes
-  when: inventory_hostname == groups['Couchdb'][0]
+  when: inventory_hostname == groups['Couchdb'][0] and cluster_status.json.state != "cluster_finished"

@@ -54,4 +54,5 @@
   community.docker.docker_stack:
     compose: "{{ mastodon_docker_dir }}/docker-compose.yaml"
     name: "mastodon-harvester"
+    prune: true
   when: inventory_hostname == groups['DockerSwarmManager'][0]

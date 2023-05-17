@@ -5,7 +5,7 @@ services:
   frontend:
     image: frontend
     deploy:
-      replicas: 2
+      replicas: {{ container_replicas }}
       placement:
         constraints:
           - node.labels.type == app

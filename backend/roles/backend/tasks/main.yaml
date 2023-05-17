@@ -44,6 +44,7 @@
     name: backend
     source: build
     force_source: true
+  register: image_build_result
   when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
 
 - name: Run docker stack to deploy backend

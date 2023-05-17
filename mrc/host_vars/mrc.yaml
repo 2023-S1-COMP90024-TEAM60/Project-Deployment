@@ -22,6 +22,8 @@ volumes:
     vol_size: 30
   - vol_name: LMELPA2APP02-data-01
     vol_size: 30
+  - vol_name: LMELPA2APP03-data-01
+    vol_size: 30
   - vol_name: LMELPA2DB01-docker-01
     vol_size: 15
   - vol_name: LMELPA2DB02-docker-01
@@ -32,6 +34,29 @@ volumes:
     vol_size: 15
   - vol_name: LMELPA2APP02-docker-01
     vol_size: 15
+  - vol_name: LMELPA2APP03-docker-01
+    vol_size: 15
+
+# Instance
+instances:
+  - name: LMELPA2DB01
+    instance_flavor: uom.mse.1c4g
+    volumes: ["LMELPA2DB01-data-01", "LMELPA2DB01-docker-01"]
+  - name: LMELPA2DB02
+    instance_flavor: uom.mse.1c4g
+    volumes: ["LMELPA2DB02-data-01", "LMELPA2DB02-docker-01"]
+  - name: LMELPA2DB03
+    instance_flavor: uom.mse.1c4g
+    volumes: ["LMELPA2DB03-data-01", "LMELPA2DB03-docker-01"]
+  - name: LMELPA2APP01
+    instance_flavor: uom.mse.2c9g
+    volumes: ["LMELPA2APP01-data-01", "LMELPA2APP01-docker-01"]
+  - name: LMELPA2APP02
+    instance_flavor: uom.mse.2c9g
+    volumes: ["LMELPA2APP02-data-01", "LMELPA2APP02-docker-01"]
+  - name: LMELPA2APP03
+    instance_flavor: uom.mse.1c4g
+    volumes: ["LMELPA2APP03-data-01", "LMELPA2APP03-docker-01"]
 
 security_groups:
   - name: sg-couchdb-01
@@ -204,21 +229,3 @@ security_groups_rules:
     port_range_min: 8000
     port_range_max: 8000
     remote_ip_prefix: 0.0.0.0/0
-
-# Instance
-instances:
-  - name: LMELPA2DB01
-    instance_flavor: uom.mse.1c4g
-    volumes: ["LMELPA2DB01-data-01", "LMELPA2DB01-docker-01"]
-  - name: LMELPA2DB02
-    instance_flavor: uom.mse.1c4g
-    volumes: ["LMELPA2DB02-data-01", "LMELPA2DB02-docker-01"]
-  - name: LMELPA2DB03
-    instance_flavor: uom.mse.1c4g
-    volumes: ["LMELPA2DB03-data-01", "LMELPA2DB03-docker-01"]
-  - name: LMELPA2APP01
-    instance_flavor: uom.mse.2c9g
-    volumes: ["LMELPA2APP01-data-01", "LMELPA2APP01-docker-01"]
-  - name: LMELPA2APP02
-    instance_flavor: uom.mse.2c9g
-    volumes: ["LMELPA2APP02-data-01", "LMELPA2APP02-docker-01"]

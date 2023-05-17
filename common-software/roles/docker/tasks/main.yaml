@@ -1,10 +1,4 @@
 ---
-- name: Uninstall old versions of docker
-  become: yes
-  ansible.builtin.apt:
-    name: ['docker', 'docker-engine', 'docker.io']
-    state: absent
-
 - name: Install dependencies
   become: yes
   ansible.builtin.apt:

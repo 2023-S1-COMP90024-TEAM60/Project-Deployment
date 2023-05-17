@@ -4,16 +4,21 @@
   vars_files:
     - host_vars/couchdb.yaml
 
+  vars_prompt:
+    - name: couchdb_user
+      prompt: Enter the CouchDB username
+    - name: couchdb_password
+      prompt: Enter the CouchDB password
+    - name: couchdb_hashed_password
+      prompt: Enter the CouchDB hashed password
+    - name: couchdb_secret
+      prompt: Enter the CouchDB secret
+
   vars:
     - ansible_user: ubuntu
     - ansible_ssh_private_key_file: ~/.ssh/mrc_cloud.key
     - ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
     - ansible_python_interpreter: /usr/bin/python3
-    
-    - couchdb_user: admin
-    - couchdb_password: comp90024-60
-    - couchdb_hashed_password: -pbkdf2-540ee3d3c6e0a439c12fdd373c85a16630772bd7,8a3bfe04b1f4294d89d9e9d250fce77a,10
-    - couchdb_secret: \@Password1234
 
   roles:
     - role: couchdb

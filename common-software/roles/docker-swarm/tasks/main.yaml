@@ -1,11 +1,20 @@
 ---
+- name: Get info on Docker Swarm
+  become: yes
+  docker_swarm_info:
+  ignore_errors: yes
+  register: result
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
 - name: Init a new swarm with default parameters
   become: yes
   community.docker.docker_swarm:
     state: present
     advertise_addr: "{{ inventory_hostname }}"
   register: result
-  when: inventory_hostname == groups['DockerSwarmManager'][0]
+  when: 
+    - docker_swarm_info.swarm_facts is not defined
+    - inventory_hostname == groups['DockerSwarmManager'][0]
 
 - name: Get join-token for manager nodes
   set_fact:
@@ -20,7 +29,6 @@
   community.docker.docker_swarm:
     state: join
     join_token: "{{ join_token_manager }}"
-    # advertise_addr: "{{ inventory_hostname }}"
     remote_addrs: ["{{ hostvars[groups['DockerSwarmManager'][0]].inventory_hostname }}:2377"]
   when:
     - inventory_hostname in groups['DockerSwarmManager']

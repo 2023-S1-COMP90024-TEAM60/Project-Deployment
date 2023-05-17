@@ -6,7 +6,7 @@ services:
     image: backend
     deploy:
       mode: replicated
-      replicas: 2
+      replicas: {{ container_replicas }}
       placement:
         constraints:
           - node.labels.type == app
