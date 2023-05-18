@@ -1,3 +1,3 @@
 ---
 load_balancer_docker_dir: load_balancer_docker
-couchdb_lb_container_replicas: 2
+couchdb_lb_container_replicas: 3

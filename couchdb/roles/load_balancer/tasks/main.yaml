@@ -4,7 +4,7 @@
   ansible.builtin.file:
     path: "{{ load_balancer_docker_dir }}"
     state: absent
-  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['Couchdb']
+  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
 
 - name: Create CouchdB LB directory
   become: yes
@@ -14,7 +14,7 @@
     group: "{{ ansible_user }}"
     recurse: yes
     state: directory
-  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['Couchdb']
+  when: inventory_hostname == groups['DockerSwarmManager'][0] or inventory_hostname in groups['App']
 
 - name: Copy docker-compose file with owner and permissions
   become: yes
@@ -34,7 +34,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: '0644'
-  when: inventory_hostname in groups['Couchdb']
+  when: inventory_hostname in groups['App']
 
 - name: Copy haproxy.cfg with owner and permissions
   become: yes
@@ -44,7 +44,7 @@
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: '0644'
-  when: inventory_hostname in groups['Couchdb']
+  when: inventory_hostname in groups['App']
 
 - name: Build an image
   become: yes
@@ -55,13 +55,13 @@
     name: couchdb_lb
     source: build
     force_source: true
-  when: inventory_hostname in groups['Couchdb']
+  when: inventory_hostname in groups['App']
 
-- name: Run docker stack to deploy mastodon harvester
+- name: Run docker stack to deploy CouchDB LB
   become: yes
   community.docker.docker_stack:
     compose: "{{ load_balancer_docker_dir }}/docker-compose.yaml"
-    name: "couchdb_lb-harvester"
+    name: "couchdb_lb"
     prune: true
   when: inventory_hostname == groups['DockerSwarmManager'][0]
 

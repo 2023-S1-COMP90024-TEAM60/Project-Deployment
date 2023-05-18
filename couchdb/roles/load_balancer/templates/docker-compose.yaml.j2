@@ -9,9 +9,9 @@ services:
       replicas: {{ couchdb_lb_container_replicas }}
       placement:
         constraints:
-          - node.labels.type == db
+          - node.labels.type == app
         preferences:
-          - spread: node.labels.db
+          - spread: node.labels.app
     ports:
       - 10000:10000
     networks:
