@@ -105,3 +105,25 @@
     body: "{\"action\": \"finish_cluster\"}"
     return_content: yes
   when: inventory_hostname == groups['Couchdb'][0] and cluster_status.json.state != "cluster_finished"
+
+- name: Add db username to docker secret
+  become: yes
+  community.docker.docker_secret:
+    name: couchdb_username
+    data: "{{ couchdb_user }}"
+    state: present
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Add db password to docker secret
+  become: yes
+  community.docker.docker_secret:
+    name: couchdb_password
+    data: "{{ couchdb_password }}"
+    state: present
+  when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Prune stopped containers and unused images
+  become: yes
+  community.docker.docker_prune:
+    containers: true
+    images: true

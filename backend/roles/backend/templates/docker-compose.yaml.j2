@@ -12,11 +12,24 @@ services:
           - node.labels.type == app
         preferences:
           - spread: node.labels.app
+    environment:
+      COUCHDB_USERNAME_FILE: /run/secrets/couchdb_username
+      COUCHDB_PASSWORD_FILE: /run/secrets/couchdb_password
+      COUCHDB_IP: {{ groups['Couchdb'][0] }}
     command: gunicorn --bind 0.0.0.0:8000 app:app
     ports:
       - 8000:8000
     networks:
       - backend
+    secrets:
+      - couchdb_username
+      - couchdb_password
+
+secrets:
+  couchdb_username:
+    external: true
+  couchdb_password:
+    external: true
 
 networks:
   backend:

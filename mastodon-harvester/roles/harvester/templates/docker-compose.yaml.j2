@@ -4,6 +4,10 @@ services:
 {% for item in mastodon_servers %}
   mastodon-harvester-{{item.server_name}}:
     image: mastodon_harvester
+    environment:
+      COUCHDB_USERNAME_FILE: /run/secrets/couchdb_username
+      COUCHDB_PASSWORD_FILE: /run/secrets/couchdb_password
+      COUCHDB_IP: {{ groups['Couchdb'][0] }}
     deploy:
       replicas: 1
       placement:
@@ -12,7 +16,17 @@ services:
     command: ["python", "matdn.py", "--mastodon_server_url", "{{ item.server_url }}", "--mastodon_access_token", "{{ item.access_token }}", "--couchdb_endpoint", "{{ couchdb_endpoint }}", "--couchdb_database", "{{ couchdb_database }}", "--mastodon_server_tag", "{{ item.server_name }}"]
     networks:
       - mastodon-harvester
+    secrets:
+      - couchdb_username
+      - couchdb_password
 {% endfor %}
+
+secrets:
+  couchdb_username:
+    external: true
+  couchdb_password:
+    external: true
+
 networks:
   mastodon-harvester:
     driver: overlay

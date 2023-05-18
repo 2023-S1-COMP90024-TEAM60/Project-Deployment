@@ -56,3 +56,9 @@
     name: "mastodon-harvester"
     prune: true
   when: inventory_hostname == groups['DockerSwarmManager'][0]
+
+- name: Prune stopped containers and unused images
+  become: yes
+  community.docker.docker_prune:
+    containers: true
+    images: true
