@@ -3,6 +3,7 @@
 
   vars_files:
     - host_vars/couchdb.yaml
+    - host_vars/load_balancer.yaml
 
   vars_prompt:
     - name: couchdb_user
@@ -22,3 +23,4 @@
 
   roles:
     - role: couchdb
+    - role: load_balancer

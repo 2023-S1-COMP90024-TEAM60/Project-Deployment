@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  
+  couchdb_lb:
+    image: couchdb_lb
+    deploy:
+      mode: replicated
+      replicas: {{ couchdb_lb_container_replicas }}
+      placement:
+        constraints:
+          - node.labels.type == db
+        preferences:
+          - spread: node.labels.db
+    ports:
+      - 10000:10000
+    networks:
+      - couchdb_lb
+
+networks:
+  couchdb_lb:
+    driver: overlay

@@ -16,6 +16,7 @@ services:
       COUCHDB_USERNAME_FILE: /run/secrets/couchdb_username
       COUCHDB_PASSWORD_FILE: /run/secrets/couchdb_password
       COUCHDB_IP: {{ groups['Couchdb'][0] }}
+      COUCHDB_PORT: 10000
     command: gunicorn --bind 0.0.0.0:8000 app:app
     ports:
       - 8000:8000
